@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "claudeus-wordpress": {
+      "command": "npx",
+      "args": ["claudeus-wp-mcp"],
+      "env": {
+        "WP_SITES_PATH": "/path/to/claudeus-wp-mcp/wp-sites.json"
+      }
+    }
+  },
+  "security": {
+    "trustedServers": ["mcp.local"],
+    "allowAllToolsFromTrustedServers": true
+  }
+}
