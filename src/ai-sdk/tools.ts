@@ -10,13 +10,12 @@ import {
 } from "./clients.js";
 import { SiteConfig } from "../types.js";
 
-const siteConfigs: SiteConfig = {
+const siteConfig: SiteConfig = {
   url: "https://example.com",
   username: "user",
   auth: "pass",
   authType: "basic",
 };
-
 export const tools: ToolSet = {
   wp_content__get_posts: {
     description: "Get a list of posts with optional filters.",
@@ -25,10 +24,48 @@ export const tools: ToolSet = {
         .string()
         .describe("Site alias (defaults to default_test)")
         .default("default_test"),
-      filters: z.any().optional().describe("Optional filters for posts query"),
+      filters: z
+        .object({
+          per_page: z.number().optional(),
+          page: z.number().optional(),
+          search: z.string().optional(),
+          author: z.number().optional(),
+          author_exclude: z.array(z.number()).optional(),
+          after: z.string().optional(),
+          before: z.string().optional(),
+          exclude: z.array(z.number()).optional(),
+          include: z.array(z.number()).optional(),
+          offset: z.number().optional(),
+          order: z.enum(["asc", "desc"]).optional(),
+          orderby: z
+            .enum([
+              "author",
+              "date",
+              "id",
+              "include",
+              "modified",
+              "parent",
+              "relevance",
+              "slug",
+              "include_slugs",
+              "title",
+            ])
+            .optional(),
+          slug: z.array(z.string()).optional(),
+          status: z
+            .enum(["publish", "future", "draft", "pending", "private"])
+            .optional(),
+          categories: z.array(z.number()).optional(),
+          categories_exclude: z.array(z.number()).optional(),
+          tags: z.array(z.number()).optional(),
+          tags_exclude: z.array(z.number()).optional(),
+          sticky: z.boolean().optional(),
+        })
+        .optional()
+        .describe("Optional filters for posts query"),
     }),
     execute: async ({ site, filters }) => {
-      const client = getPostsClient(site, siteConfigs);
+      const client = getPostsClient(site, siteConfig);
       return await client.getPosts(filters);
     },
   },
@@ -39,10 +76,33 @@ export const tools: ToolSet = {
         .string()
         .describe("Site alias (defaults to default_test)")
         .default("default_test"),
-      data: z.any(),
+      data: z
+        .object({
+          title: z.string().optional(),
+          content: z.string().optional(),
+          status: z
+            .enum(["publish", "future", "draft", "pending", "private"])
+            .optional(),
+          author: z.number().optional(),
+          excerpt: z.string().optional(),
+          featured_media: z.number().optional(),
+          comment_status: z.enum(["open", "closed"]).optional(),
+          ping_status: z.enum(["open", "closed"]).optional(),
+          format: z.string().optional(),
+          meta: z
+            .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+            .optional(),
+          sticky: z.boolean().optional(),
+          template: z.string().optional(),
+          categories: z.array(z.number()).optional(),
+          tags: z.array(z.number()).optional(),
+          slug: z.string().optional(),
+          password: z.string().optional(),
+        })
+        .describe("Post data"),
     }),
     execute: async ({ site, data }) => {
-      const client = getPostsClient(site, siteConfigs);
+      const client = getPostsClient(site, siteConfig);
       return await client.createPost(data);
     },
   },
@@ -51,10 +111,33 @@ export const tools: ToolSet = {
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
       id: z.number().describe("Post ID"),
-      data: z.any().describe("Updated post data"),
+      data: z
+        .object({
+          title: z.string().optional(),
+          content: z.string().optional(),
+          status: z
+            .enum(["publish", "future", "draft", "pending", "private"])
+            .optional(),
+          author: z.number().optional(),
+          excerpt: z.string().optional(),
+          featured_media: z.number().optional(),
+          comment_status: z.enum(["open", "closed"]).optional(),
+          ping_status: z.enum(["open", "closed"]).optional(),
+          format: z.string().optional(),
+          meta: z
+            .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+            .optional(),
+          sticky: z.boolean().optional(),
+          template: z.string().optional(),
+          categories: z.array(z.number()).optional(),
+          tags: z.array(z.number()).optional(),
+          slug: z.string().optional(),
+          password: z.string().optional(),
+        })
+        .describe("Updated post data"),
     }),
     execute: async ({ site, id, data }) => {
-      const client = getPostsClient(site, siteConfigs);
+      const client = getPostsClient(site, siteConfig);
       return await client.updatePost(id, data);
     },
   },
@@ -65,7 +148,7 @@ export const tools: ToolSet = {
       id: z.number().describe("Post ID"),
     }),
     execute: async ({ site, id }) => {
-      const client = getPostsClient(site, siteConfigs);
+      const client = getPostsClient(site, siteConfig);
       return await client.deletePost(id);
     },
   },
@@ -73,10 +156,47 @@ export const tools: ToolSet = {
     description: "Get a list of pages with optional filters.",
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
-      filters: z.any().optional().describe("Optional filters for pages query"),
+      filters: z
+        .object({
+          per_page: z.number().optional(),
+          page: z.number().optional(),
+          search: z.string().optional(),
+          author: z.number().optional(),
+          author_exclude: z.array(z.number()).optional(),
+          after: z.string().optional(),
+          before: z.string().optional(),
+          exclude: z.array(z.number()).optional(),
+          include: z.array(z.number()).optional(),
+          menu_order: z.number().optional(),
+          offset: z.number().optional(),
+          order: z.enum(["asc", "desc"]).optional(),
+          orderby: z
+            .enum([
+              "author",
+              "date",
+              "id",
+              "include",
+              "modified",
+              "parent",
+              "relevance",
+              "slug",
+              "include_slugs",
+              "title",
+              "menu_order",
+            ])
+            .optional(),
+          parent: z.number().optional(),
+          parent_exclude: z.array(z.number()).optional(),
+          slug: z.array(z.string()).optional(),
+          status: z
+            .enum(["publish", "future", "draft", "pending", "private"])
+            .optional(),
+        })
+        .optional()
+        .describe("Optional filters for pages query"),
     }),
     execute: async ({ site, filters }) => {
-      const client = getPagesClient(site, siteConfigs);
+      const client = getPagesClient(site, siteConfig);
       return await client.getPages(filters);
     },
   },
@@ -84,10 +204,31 @@ export const tools: ToolSet = {
     description: "Create a new page.",
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
-      data: z.any().describe("Page data"),
+      data: z
+        .object({
+          title: z.string().optional(),
+          content: z.string().optional(),
+          status: z
+            .enum(["publish", "future", "draft", "pending", "private"])
+            .optional(),
+          author: z.number().optional(),
+          excerpt: z.string().optional(),
+          featured_media: z.number().optional(),
+          comment_status: z.enum(["open", "closed"]).optional(),
+          ping_status: z.enum(["open", "closed"]).optional(),
+          meta: z
+            .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+            .optional(),
+          parent: z.number().optional(),
+          menu_order: z.number().optional(),
+          template: z.string().optional(),
+          slug: z.string().optional(),
+          password: z.string().optional(),
+        })
+        .describe("Page data"),
     }),
     execute: async ({ site, data }) => {
-      const client = getPagesClient(site, siteConfigs);
+      const client = getPagesClient(site, siteConfig);
       return await client.createPage(data);
     },
   },
@@ -96,10 +237,31 @@ export const tools: ToolSet = {
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
       id: z.number().describe("Page ID"),
-      data: z.any().describe("Updated page data"),
+      data: z
+        .object({
+          title: z.string().optional(),
+          content: z.string().optional(),
+          status: z
+            .enum(["publish", "future", "draft", "pending", "private"])
+            .optional(),
+          author: z.number().optional(),
+          excerpt: z.string().optional(),
+          featured_media: z.number().optional(),
+          comment_status: z.enum(["open", "closed"]).optional(),
+          ping_status: z.enum(["open", "closed"]).optional(),
+          meta: z
+            .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+            .optional(),
+          parent: z.number().optional(),
+          menu_order: z.number().optional(),
+          template: z.string().optional(),
+          slug: z.string().optional(),
+          password: z.string().optional(),
+        })
+        .describe("Updated page data"),
     }),
     execute: async ({ site, id, data }) => {
-      const client = getPagesClient(site, siteConfigs);
+      const client = getPagesClient(site, siteConfig);
       return await client.updatePage(id, data);
     },
   },
@@ -110,7 +272,7 @@ export const tools: ToolSet = {
       id: z.number().describe("Page ID"),
     }),
     execute: async ({ site, id }) => {
-      const client = getPagesClient(site, siteConfigs);
+      const client = getPagesClient(site, siteConfig);
       return await client.deletePage(id);
     },
   },
@@ -118,10 +280,47 @@ export const tools: ToolSet = {
     description: "Get a list of media items with optional filters.",
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
-      filters: z.any().optional().describe("Optional filters for media query"),
+      filters: z
+        .object({
+          per_page: z.number().optional(),
+          page: z.number().optional(),
+          search: z.string().optional(),
+          author: z.number().optional(),
+          author_exclude: z.array(z.number()).optional(),
+          after: z.string().optional(),
+          before: z.string().optional(),
+          exclude: z.array(z.number()).optional(),
+          include: z.array(z.number()).optional(),
+          offset: z.number().optional(),
+          order: z.enum(["asc", "desc"]).optional(),
+          orderby: z
+            .enum([
+              "author",
+              "date",
+              "id",
+              "include",
+              "modified",
+              "parent",
+              "relevance",
+              "slug",
+              "include_slugs",
+              "title",
+            ])
+            .optional(),
+          parent: z.number().optional(),
+          parent_exclude: z.array(z.number()).optional(),
+          slug: z.array(z.string()).optional(),
+          status: z.string().optional(),
+          media_type: z
+            .enum(["image", "video", "text", "application", "audio"])
+            .optional(),
+          mime_type: z.string().optional(),
+        })
+        .optional()
+        .describe("Optional filters for media query"),
     }),
     execute: async ({ site, filters }) => {
-      const client = getMediaClient(site, siteConfigs);
+      const client = getMediaClient(site, siteConfig);
       return await client.getMedia(filters);
     },
   },
@@ -131,10 +330,25 @@ export const tools: ToolSet = {
       site: z.string().describe("Site alias"),
       file: z.string().describe("File buffer (base64 or binary)"),
       filename: z.string().describe("Name of the file"),
-      data: z.any().optional().describe("Optional media metadata"),
+      data: z
+        .object({
+          title: z.string().optional(),
+          caption: z.string().optional(),
+          description: z.string().optional(),
+          alt_text: z.string().optional(),
+          author: z.number().optional(),
+          comment_status: z.enum(["open", "closed"]).optional(),
+          ping_status: z.enum(["open", "closed"]).optional(),
+          meta: z
+            .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+            .optional(),
+          template: z.string().optional(),
+        })
+        .optional()
+        .describe("Optional media metadata"),
     }),
     execute: async ({ site, file, filename, data }) => {
-      const client = getMediaClient(site, siteConfigs);
+      const client = getMediaClient(site, siteConfig);
       // decode base64 if needed
       let base64 = file;
       if (file.startsWith("data:")) {
@@ -149,10 +363,24 @@ export const tools: ToolSet = {
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
       id: z.number().describe("Media ID"),
-      data: z.any().describe("Updated media metadata"),
+      data: z
+        .object({
+          title: z.string().optional(),
+          caption: z.string().optional(),
+          description: z.string().optional(),
+          alt_text: z.string().optional(),
+          author: z.number().optional(),
+          comment_status: z.enum(["open", "closed"]).optional(),
+          ping_status: z.enum(["open", "closed"]).optional(),
+          meta: z
+            .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+            .optional(),
+          template: z.string().optional(),
+        })
+        .describe("Updated media metadata"),
     }),
     execute: async ({ site, id, data }) => {
-      const client = getMediaClient(site, siteConfigs);
+      const client = getMediaClient(site, siteConfig);
       return await client.updateMedia(id, data);
     },
   },
@@ -164,7 +392,7 @@ export const tools: ToolSet = {
       force: z.boolean().optional().describe("Whether to bypass trash"),
     }),
     execute: async ({ site, id, force }) => {
-      const client = getMediaClient(site, siteConfigs);
+      const client = getMediaClient(site, siteConfig);
       return await client.deleteMedia(id, force);
     },
   },
@@ -172,10 +400,39 @@ export const tools: ToolSet = {
     description: "Get a list of blocks with optional filters.",
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
-      filters: z.any().optional().describe("Optional filters for blocks query"),
+      filters: z
+        .object({
+          per_page: z.number().optional(),
+          page: z.number().optional(),
+          search: z.string().optional(),
+          exclude: z.array(z.number()).optional(),
+          include: z.array(z.number()).optional(),
+          offset: z.number().optional(),
+          order: z.enum(["asc", "desc"]).optional(),
+          orderby: z
+            .enum([
+              "author",
+              "date",
+              "id",
+              "include",
+              "modified",
+              "parent",
+              "relevance",
+              "slug",
+              "include_slugs",
+              "title",
+            ])
+            .optional(),
+          slug: z.array(z.string()).optional(),
+          status: z
+            .enum(["publish", "future", "draft", "pending", "private"])
+            .optional(),
+        })
+        .optional()
+        .describe("Optional filters for blocks query"),
     }),
     execute: async ({ site, filters }) => {
-      const client = getBlocksClient(site, siteConfigs);
+      const client = getBlocksClient(site, siteConfig);
       return await client.getBlocks(filters);
     },
   },
@@ -183,10 +440,22 @@ export const tools: ToolSet = {
     description: "Create a new block.",
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
-      data: z.any().describe("Block data"),
+      data: z
+        .object({
+          title: z.string().optional(),
+          content: z.string().optional(),
+          status: z
+            .enum(["publish", "future", "draft", "pending", "private"])
+            .optional(),
+          slug: z.string().optional(),
+          meta: z
+            .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+            .optional(),
+        })
+        .describe("Block data"),
     }),
     execute: async ({ site, data }) => {
-      const client = getBlocksClient(site, siteConfigs);
+      const client = getBlocksClient(site, siteConfig);
       return await client.createBlock(data);
     },
   },
@@ -195,10 +464,22 @@ export const tools: ToolSet = {
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
       id: z.number().describe("Block ID"),
-      data: z.any().describe("Updated block data"),
+      data: z
+        .object({
+          title: z.string().optional(),
+          content: z.string().optional(),
+          status: z
+            .enum(["publish", "future", "draft", "pending", "private"])
+            .optional(),
+          slug: z.string().optional(),
+          meta: z
+            .record(z.union([z.string(), z.number(), z.boolean(), z.null()]))
+            .optional(),
+        })
+        .describe("Updated block data"),
     }),
     execute: async ({ site, id, data }) => {
-      const client = getBlocksClient(site, siteConfigs);
+      const client = getBlocksClient(site, siteConfig);
       return await client.updateBlock(id, data);
     },
   },
@@ -209,7 +490,7 @@ export const tools: ToolSet = {
       id: z.number().describe("Block ID"),
     }),
     execute: async ({ site, id }) => {
-      const client = getBlocksClient(site, siteConfigs);
+      const client = getBlocksClient(site, siteConfig);
       return await client.deleteBlock(id);
     },
   },
@@ -220,7 +501,7 @@ export const tools: ToolSet = {
       id: z.number().describe("Block ID"),
     }),
     execute: async ({ site, id }) => {
-      const client = getBlocksClient(site, siteConfigs);
+      const client = getBlocksClient(site, siteConfig);
       return await client.getBlockRevisions(id);
     },
   },
@@ -228,10 +509,16 @@ export const tools: ToolSet = {
     description: "Get a list of installed themes.",
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
-      filters: z.any().optional().describe("Optional filters for themes query"),
+      filters: z
+        .object({
+          status: z.enum(["active", "inactive"]).optional(),
+          search: z.string().optional(),
+        })
+        .optional()
+        .describe("Optional filters for themes query"),
     }),
     execute: async ({ site, filters }) => {
-      const client = getThemesClient(site, siteConfigs);
+      const client = getThemesClient(site, siteConfig);
       return await client.getThemes(filters);
     },
   },
@@ -241,7 +528,7 @@ export const tools: ToolSet = {
       site: z.string().describe("Site alias"),
     }),
     execute: async ({ site }) => {
-      const client = getThemesClient(site, siteConfigs);
+      const client = getThemesClient(site, siteConfig);
       return await client.getActiveTheme();
     },
   },
@@ -252,7 +539,7 @@ export const tools: ToolSet = {
       stylesheet: z.string().describe("Theme stylesheet name"),
     }),
     execute: async ({ site, stylesheet }) => {
-      const client = getThemesClient(site, siteConfigs);
+      const client = getThemesClient(site, siteConfig);
       return await client.activateTheme(stylesheet);
     },
   },
@@ -262,7 +549,7 @@ export const tools: ToolSet = {
       site: z.string().describe("Site alias"),
     }),
     execute: async ({ site }) => {
-      const client = getThemesClient(site, siteConfigs);
+      const client = getThemesClient(site, siteConfig);
       return await client.getThemeCustomization();
     },
   },
@@ -270,10 +557,20 @@ export const tools: ToolSet = {
     description: "Update theme customization settings.",
     inputSchema: z.object({
       site: z.string().describe("Site alias"),
-      updates: z.any().describe("Customization updates to apply"),
+      updates: z
+        .object({
+          site_title: z.string().optional(),
+          blogdescription: z.string().optional(),
+          header_textcolor: z.string().optional(),
+          background_color: z.string().optional(),
+          link_color: z.string().optional(),
+          custom_logo: z.number().optional(),
+          custom_css: z.string().optional(),
+        })
+        .describe("Customization updates to apply"),
     }),
     execute: async ({ site, updates }) => {
-      const client = getThemesClient(site, siteConfigs);
+      const client = getThemesClient(site, siteConfig);
       return await client.updateThemeCustomization(updates);
     },
   },
@@ -283,7 +580,7 @@ export const tools: ToolSet = {
       site: z.string().describe("Site alias"),
     }),
     execute: async ({ site }) => {
-      const client = getThemesClient(site, siteConfigs);
+      const client = getThemesClient(site, siteConfig);
       return await client.getCustomCss();
     },
   },
@@ -294,7 +591,7 @@ export const tools: ToolSet = {
       css: z.string().describe("Custom CSS code"),
     }),
     execute: async ({ site, css }) => {
-      const client = getThemesClient(site, siteConfigs);
+      const client = getThemesClient(site, siteConfig);
       return await client.updateCustomCss(css);
     },
   },
@@ -306,12 +603,29 @@ export const tools: ToolSet = {
         .describe("Site alias (defaults to default_test)")
         .default("default_test"),
       filters: z
-        .any()
+        .object({
+          per_page: z.number().optional(),
+          page: z.number().optional(),
+          search: z.string().optional(),
+          category: z.number().optional(),
+          tag: z.number().optional(),
+          status: z.enum(["draft", "pending", "private", "publish"]).optional(),
+          featured: z.boolean().optional(),
+          type: z
+            .enum(["simple", "grouped", "external", "variable"])
+            .optional(),
+          sku: z.string().optional(),
+          min_price: z.string().optional(),
+          max_price: z.string().optional(),
+          stock_status: z
+            .enum(["instock", "outofstock", "onbackorder"])
+            .optional(),
+        })
         .optional()
         .describe("Optional filters for products query"),
     }),
     execute: async ({ site, filters }) => {
-      const client = getShopClient(site, siteConfigs);
+      const client = getShopClient(site, siteConfig);
       return await client.getProducts(filters);
     },
   },
@@ -322,10 +636,34 @@ export const tools: ToolSet = {
         .string()
         .describe("Site alias (defaults to default_test)")
         .default("default_test"),
-      filters: z.any().optional().describe("Optional filters for orders query"),
+      filters: z
+        .object({
+          per_page: z.number().optional(),
+          page: z.number().optional(),
+          search: z.string().optional(),
+          status: z
+            .enum([
+              "pending",
+              "processing",
+              "on-hold",
+              "completed",
+              "cancelled",
+              "refunded",
+              "failed",
+            ])
+            .optional(),
+          customer: z.number().optional(),
+          product: z.number().optional(),
+          date_created_min: z.string().optional(),
+          date_created_max: z.string().optional(),
+          after: z.string().optional(),
+          before: z.string().optional(),
+        })
+        .optional()
+        .describe("Optional filters for orders query"),
     }),
     execute: async ({ site, filters }) => {
-      const client = getShopClient(site, siteConfigs);
+      const client = getShopClient(site, siteConfig);
       return await client.getOrders(filters);
     },
   },
@@ -337,12 +675,18 @@ export const tools: ToolSet = {
         .describe("Site alias (defaults to default_test)")
         .default("default_test"),
       filters: z
-        .any()
+        .object({
+          period: z.enum(["day", "week", "month", "year"]).optional(),
+          date_min: z.string().optional(),
+          date_max: z.string().optional(),
+          product: z.number().optional(),
+          category: z.number().optional(),
+        })
         .optional()
         .describe("Optional filters for sales statistics"),
     }),
     execute: async ({ site, filters }) => {
-      const client = getShopClient(site, siteConfigs);
+      const client = getShopClient(site, siteConfig);
       return await client.getSalesStats(filters);
     },
   },
